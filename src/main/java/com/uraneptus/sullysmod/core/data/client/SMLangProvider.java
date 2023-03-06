@@ -6,9 +6,13 @@ import com.uraneptus.sullysmod.core.registry.SMEntityTypes;
 import com.uraneptus.sullysmod.core.registry.SMItems;
 import com.uraneptus.sullysmod.core.registry.SMPotions;
 import net.minecraft.data.DataGenerator;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.alchemy.Potion;
 import net.minecraft.world.item.alchemy.PotionUtils;
 import net.minecraftforge.common.data.LanguageProvider;
+
+import java.util.function.Supplier;
 
 public class SMLangProvider extends LanguageProvider {
 
@@ -70,27 +74,31 @@ public class SMLangProvider extends LanguageProvider {
         add(SMItems.POLISHED_JADE.get(), "Polished Jade");
         add(SMItems.LANTERNFISH_BUCKET.get(), "Bucket of Lanternfish");
         add(SMItems.LANTERNFISH_SPAWN_EGG.get(), "Lanternfish Spawn Egg");
-        add(SMItems.RAW_LANTERNFISH.get(), "Raw Lanternfish");
+        add(SMItems.LANTERNFISH.get(), "Raw Lanternfish");
         add(SMItems.COOKED_LANTERNFISH.get(), "Cooked Lanternfish");
         add(SMItems.TORTOISE_SPAWN_EGG.get(), "Tortoise Spawn Egg");
         add(SMItems.RASCAL_SPAWN_EGG.get(), "Rascal Spawn Egg");
         add(SMItems.CHAMELEON_SPAWN_EGG.get(), "Chameleon Spawn Egg");
-        add(SMItems.MUSIC_DISC_SCOUR.get(), "Music Disc");
-        add("item.sullysmod.music_disc_scour.desc", "LudoCrypt - scour");
         add(SMItems.JADE_SHIELD.get(), "Jade Shield");
+        add(SMItems.LANTERNFISH_SLICE.get(), "Raw Lanternfish Slice");
+        add(SMItems.COOKED_LANTERNFISH_SLICE.get(), "Cooked Lanternfish Slice");
+        add(SMItems.LANTERNFISH_ROLL.get(), "Lanternfish Roll");
+        add(SMItems.CAVE_CHUM_BUCKET.get(), "Cave Chum Bucket");
+        add(SMItems.TORTOISE_SCUTE.get(), "Tortoise Scute");
+        add(SMItems.TORTOISE_SHELL.get(), "Tortoise Shell");
+
+        addMusicDisc(SMItems.MUSIC_DISC_SCOUR, "LudoCrypt - scour");
 
         //Entities
         add(SMEntityTypes.LANTERNFISH.get(), "Lanternfish");
         add(SMEntityTypes.TORTOISE.get(), "Tortoise");
         add(SMEntityTypes.COPPER_GOLEM.get(), "Copper Golem");
         add(SMEntityTypes.RASCAL.get(), "Rascal");
+        add(SMEntityTypes.TORTOISE_SHELL.get(), "Tortoise Shell");
         add(SMEntityTypes.CHAMELEON.get(), "Chameleon");
 
         //Potions
-        add(PotionUtils.setPotion(Items.POTION.getDefaultInstance(), SMPotions.UNLUCK.get()), "Potion of Bad Luck");
-        add(PotionUtils.setPotion(Items.SPLASH_POTION.getDefaultInstance(), SMPotions.UNLUCK.get()), "Splash Potion of Bad Luck");
-        add(PotionUtils.setPotion(Items.LINGERING_POTION.getDefaultInstance(), SMPotions.UNLUCK.get()), "Lingering Potion of Bad Luck");
-        add(PotionUtils.setPotion(Items.TIPPED_ARROW.getDefaultInstance(), SMPotions.UNLUCK.get()), "Arrow of Bad Luck");
+        addPotionsForEffect(SMPotions.UNLUCK, "Bad Luck");
 
         //Advancements
         add("advancements.adventure.jade_grindset.title", "Jade Grindset");
@@ -124,8 +132,20 @@ public class SMLangProvider extends LanguageProvider {
 
         //JEI
         add("sullysmod.jei.grindstone_polishing", "Polishing");
-        add("sullysmod.jei.grindstone_polishing.info", "Right-click to polish");
+        add("sullysmod.jei.grindstone_polishing.info", "Right click to polish");
 
-        SullysMod.LOGGER.info("LANGUAGE GENERATION COMPLETE");
+    }
+
+    public void addMusicDisc(Supplier<? extends Item> item, String description) {
+        String disc = item.get().getDescriptionId();
+        add(disc, "Music Disc");
+        add(disc + ".desc", description);
+    }
+
+    public void addPotionsForEffect(Supplier<? extends Potion> potionEffect, String name) {
+        add(PotionUtils.setPotion(Items.POTION.getDefaultInstance(), potionEffect.get()), "Potion of " + name);
+        add(PotionUtils.setPotion(Items.SPLASH_POTION.getDefaultInstance(), potionEffect.get()), "Splash Potion of " + name);
+        add(PotionUtils.setPotion(Items.LINGERING_POTION.getDefaultInstance(), potionEffect.get()), "Lingering Potion of " + name);
+        add(PotionUtils.setPotion(Items.TIPPED_ARROW.getDefaultInstance(), potionEffect.get()), "Arrow of " + name);
     }
 }

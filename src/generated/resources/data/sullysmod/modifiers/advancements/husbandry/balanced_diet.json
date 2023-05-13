@@ -4,6 +4,16 @@
       "type": "criteria",
       "config": {
         "criteria": {
+          "sullysmod:cave_chum_bucket": {
+            "conditions": {
+              "item": {
+                "items": [
+                  "sullysmod:cave_chum_bucket"
+                ]
+              }
+            },
+            "trigger": "minecraft:consume_item"
+          },
           "sullysmod:cooked_lanternfish": {
             "conditions": {
               "item": {
@@ -14,11 +24,41 @@
             },
             "trigger": "minecraft:consume_item"
           },
-          "sullysmod:raw_lanternfish": {
+          "sullysmod:cooked_lanternfish_slice": {
             "conditions": {
               "item": {
                 "items": [
-                  "sullysmod:raw_lanternfish"
+                  "sullysmod:cooked_lanternfish_slice"
+                ]
+              }
+            },
+            "trigger": "minecraft:consume_item"
+          },
+          "sullysmod:lanternfish": {
+            "conditions": {
+              "item": {
+                "items": [
+                  "sullysmod:lanternfish"
+                ]
+              }
+            },
+            "trigger": "minecraft:consume_item"
+          },
+          "sullysmod:lanternfish_roll": {
+            "conditions": {
+              "item": {
+                "items": [
+                  "sullysmod:lanternfish_roll"
+                ]
+              }
+            },
+            "trigger": "minecraft:consume_item"
+          },
+          "sullysmod:lanternfish_slice": {
+            "conditions": {
+              "item": {
+                "items": [
+                  "sullysmod:lanternfish_slice"
                 ]
               }
             },
@@ -27,10 +67,22 @@
         },
         "requirements": [
           [
-            "sullysmod:raw_lanternfish"
+            "sullysmod:lanternfish"
           ],
           [
             "sullysmod:cooked_lanternfish"
+          ],
+          [
+            "sullysmod:lanternfish_slice"
+          ],
+          [
+            "sullysmod:cooked_lanternfish_slice"
+          ],
+          [
+            "sullysmod:lanternfish_roll"
+          ],
+          [
+            "sullysmod:cave_chum_bucket"
           ]
         ],
         "should_replace_requirements": false

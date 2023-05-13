@@ -63,11 +63,19 @@ public class SMItemTagsProvider extends ItemTagsProvider {
         );
 
         //Forge Tags
-        tag(SMItemTags.RAW_FISH).add(
-                SMItems.RAW_LANTERNFISH.get()
+        tag(SMItemTags.RAW_LANTERNFISH).add(
+                SMItems.LANTERNFISH.get(),
+                SMItems.LANTERNFISH_SLICE.get()
+        );
+        tag(SMItemTags.RAW_FISHES).addTag(
+                SMItemTags.RAW_LANTERNFISH
         );
         tag(SMItemTags.COOKED_LANTERNFISH).add(
-                SMItems.COOKED_LANTERNFISH.get()
+                SMItems.COOKED_LANTERNFISH.get(),
+                SMItems.COOKED_LANTERNFISH_SLICE.get()
+        );
+        tag(SMItemTags.COOKED_FISHES).addTag(
+                SMItemTags.COOKED_LANTERNFISH
         );
         tag(Tags.Items.STORAGE_BLOCKS).add(
                 SMBlocks.ROUGH_JADE_BLOCK.get().asItem(),
@@ -86,6 +94,9 @@ public class SMItemTagsProvider extends ItemTagsProvider {
         tag(Tags.Items.ORES_IN_GROUND_DEEPSLATE).add(
                 SMBlocks.DEEPSLATE_JADE_ORE.get().asItem()
         );
+        tag(Tags.Items.TOOLS_SHIELDS).add(
+                SMItems.JADE_SHIELD.get()
+        );
 
         //Quark Tags
         tag(SMItemTags.VERTICAL_SLABS).add(
@@ -97,7 +108,5 @@ public class SMItemTagsProvider extends ItemTagsProvider {
                 SMBlocks.SMOOTHED_ROUGH_JADE_VERTICAL_SLAB.get().asItem(),
                 SMBlocks.ROUGH_JADE_TILE_VERTICAL_SLAB.get().asItem()
         );
-
-        SullysMod.LOGGER.info("ITEM TAG GENERATION COMPLETE");
     }
 }

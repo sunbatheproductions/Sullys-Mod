@@ -9,7 +9,6 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraftforge.client.model.generators.ItemModelProvider;
 import net.minecraftforge.client.model.generators.ModelFile;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -48,8 +47,8 @@ public class SMItemModelProvider extends ItemModelProvider {
         basicSpawnEggItem(SMItems.LANTERNFISH_SPAWN_EGG);
         basicSpawnEggItem(SMItems.TORTOISE_SPAWN_EGG);
         basicSpawnEggItem(SMItems.RASCAL_SPAWN_EGG);
+        basicItem(SMItems.LANTERNFISH);
         basicSpawnEggItem(SMItems.CHAMELEON_SPAWN_EGG);
-        basicItem(SMItems.RAW_LANTERNFISH);
         basicItem(SMItems.COOKED_LANTERNFISH);
         blockItemWithItemTexture(SMBlocks.TORTOISE_EGG);
         copperButtonBlockItem(SMBlocks.COPPER_BUTTON, COPPER_BLOCK);
@@ -83,42 +82,26 @@ public class SMItemModelProvider extends ItemModelProvider {
         basicBlockItem(SMBlocks.ROUGH_JADE_TILE_VERTICAL_SLAB);
         basicItem(SMItems.MUSIC_DISC_SCOUR);
         jadeShieldItem(SMItems.JADE_SHIELD);
-
-        SullysMod.LOGGER.info("ITEM MODEL GENERATION COMPLETE");
+        basicItem(SMItems.LANTERNFISH_SLICE);
+        basicItem(SMItems.COOKED_LANTERNFISH_SLICE);
+        basicItem(SMItems.LANTERNFISH_ROLL);
+        basicItem(SMItems.CAVE_CHUM_BUCKET);
+        basicItem(SMItems.TORTOISE_SCUTE);
+        basicItem(SMItems.TORTOISE_SHELL);
     }
 
-    /**
-     * Creates a BlockItem Model based on the provided {@link Block}'s BlockModel.
-     * @param blockForItem The supplied {@link Block} from which a BlockItem Model is being created.
-     */
     private void basicBlockItem(Supplier<? extends Block> blockForItem) {
         withExistingParent(name(blockForItem.get()), modBlockLocation(name(blockForItem.get())));
     }
 
-    /**
-     * Creates the standard Generated Item Model for the provided {@link Item}.
-     * @param item The supplied {@link Item} from which the Item Model will be created.
-     */
     private void basicItem(Supplier<? extends Item> item) {
         basicItem(item.get());
     }
 
-    /**
-     * Creates a Generated Item Model for the provided {@link Block}, with a texture file <br/>
-     * that is using the provided {@link Block}'s RegistryName and is located in <code>assets/modid/textures/block</code>. <br/>
-     * E.g.: The {@link net.minecraft.world.level.block.SaplingBlock}'s Block Item.
-     * @param blockForItem The supplied {@link Block} from which a BlockItem Model is being created.
-     */
     private void blockItemWithBlockTexture(Supplier<? extends Block> blockForItem) {
         withExistingParent(name(blockForItem.get()), GENERATED).texture(LAYER0, modBlockLocation(name(blockForItem.get())));
     }
 
-    /**
-     * Creates a Generated Item Model for the provided {@link Block}, with a texture file <br/>
-     * that is using the provided {@link Block}'s RegistryName and is located in <code>assets/modid/textures/item</code>. <br/>
-     * E.g.: The {@link net.minecraft.world.level.block.DoorBlock}'s Block Item.
-     * @param blockForItem The supplied {@link Block} from which a BlockItem Model is being created.
-     */
     private void blockItemWithItemTexture(Supplier<? extends Block> blockForItem) {
         basicItem(blockForItem.get().asItem());
     }

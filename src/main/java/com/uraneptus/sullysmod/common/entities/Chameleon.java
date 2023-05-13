@@ -32,6 +32,7 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 
 public class Chameleon extends Animal implements IAnimatable {
     public static final EntityDataAccessor<Integer> CURRENT_COLOR = SynchedEntityData.defineId(Chameleon.class, EntityDataSerializers.INT);
+    public static final EntityDataAccessor<Integer> TARGET_COLOR = SynchedEntityData.defineId(Chameleon.class, EntityDataSerializers.INT);
 
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     public static final Ingredient FOOD_ITEMS = Ingredient.of(SMItemTags.CHAMELEON_FOOD);
@@ -57,7 +58,7 @@ public class Chameleon extends Animal implements IAnimatable {
         return PlayState.STOP;
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings({"rawtypes", "unchecked"})
     @Override
     public void registerControllers(AnimationData data) {
         data.addAnimationController(new AnimationController(this, "controller", 3, this::setAnimation));
@@ -68,12 +69,20 @@ public class Chameleon extends Animal implements IAnimatable {
         return factory;
     }
 
-    public int getCurrentColour() {
+    public int getCurrentColor() {
         return this.entityData.get(CURRENT_COLOR);
     }
 
-    public void setCurrentColour(int colour) {
-        this.entityData.set(CURRENT_COLOR, colour);
+    public void setCurrentColor(int color) {
+        this.entityData.set(CURRENT_COLOR, color);
+    }
+
+    public int getTargetColor() {
+        return this.entityData.get(TARGET_COLOR);
+    }
+
+    public void setTargetColor(int color) {
+        this.entityData.set(TARGET_COLOR, color);
     }
 
     @Override
@@ -89,12 +98,22 @@ public class Chameleon extends Animal implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
-        BlockPos floorPos = this.blockPosition().below();
+        BlockPos currentPos = this.blockPosition();
+        BlockPos floorPos = currentPos.below();
+        BlockState sharedBlock = level.getBlockState(currentPos);
         BlockState floor = level.getBlockState(floorPos);
-        int floorColor = floor.getMapColor(level, floorPos).col;
 
-        if (this.getCurrentColour() != floorColor && floorColor != 0) {
-            this.setCurrentColour(floorColor);
+        if (!sharedBlock.isAir()) {
+            int sharedColor = sharedBlock.getMapColor(level, currentPos).col;
+            if (this.getTargetColor() != sharedColor && sharedColor != 0) {
+                this.setTargetColor(sharedColor);
+            }
+        }
+        else {
+            int floorColor = floor.getMapColor(level, floorPos).col;
+            if (this.getTargetColor() != floorColor && floorColor != 0) {
+                this.setTargetColor(floorColor);
+            }
         }
     }
 
@@ -107,18 +126,21 @@ public class Chameleon extends Animal implements IAnimatable {
     protected void defineSynchedData() {
         super.defineSynchedData();
         this.entityData.define(CURRENT_COLOR, 6645808);
+        this.entityData.define(TARGET_COLOR, 6645808);
     }
 
     @Override
     public void addAdditionalSaveData(CompoundTag nbt) {
         super.addAdditionalSaveData(nbt);
-        nbt.putInt("color", getCurrentColour());
+        nbt.putInt("currentColor", getCurrentColor());
+        nbt.putInt("targetColor", getTargetColor());
     }
 
     @Override
     public void readAdditionalSaveData(CompoundTag nbt) {
         super.readAdditionalSaveData(nbt);
-        nbt.getInt("color");
+        nbt.getInt("currentColor");
+        nbt.getInt("targetColor");
     }
 
     public static AttributeSupplier.Builder createAttributes() {

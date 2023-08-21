@@ -14,6 +14,7 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.MoveToBlockGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
@@ -50,12 +51,10 @@ public class Rascal extends PathfinderMob implements IAnimatable {
     int lookedAtCooldown;
     public float alphaTick;
     public float alphaTickOld;
-    public boolean shouldTeleport;
-
     @Nullable
-    private UUID trackingTarget;
+    private UUID seekerUUID;
 
-    Player player;
+    private Player player;
 
     private static final int IS_LOOKED_AT_FLAG = 1;
     private static final int FADE_FLAG = 4;
@@ -64,15 +63,16 @@ public class Rascal extends PathfinderMob implements IAnimatable {
 
     public Rascal(EntityType<? extends PathfinderMob> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
-        this.setPathfindingMalus(BlockPathTypes.LAVA, -1.0F);
-        //alphaTickOld = alphaTick;
+        //this.setPathfindingMalus(BlockPathTypes.LAVA, -1.0F);
+
     }
 
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new WaterAvoidingRandomStrollGoal(this, 1.0D, 0.0F));
+        this.goalSelector.addGoal(0, new LookForSeekerGoal(this));
+        this.goalSelector.addGoal(0, new GoToDarkPlaceGoal(this, 1.3D, 10));
+        //this.goalSelector.addGoal(1, new WaterAvoidingRandomStrollGoal(this, 1.0D, 0.0F));
         this.goalSelector.addGoal(1, new RandomLookAroundGoal(this));
-        this.targetSelector.addGoal(0, new RascalLookForDarkPlaceToFade(this, 1.25D));
-        //this.goalSelector.addGoal(0, new RascalLookForPlayerGoal(this));
+
 
     }
 
@@ -103,7 +103,9 @@ public class Rascal extends PathfinderMob implements IAnimatable {
 
         nbt.putBoolean("LookedAt", this.isLookedAt());
         nbt.putBoolean("Fading", this.isFading());
-
+        if (this.getSeekerUUID() != null) {
+            nbt.putUUID("seekerUUID", this.getSeekerUUID());
+        }
     }
 
     public void readAdditionalSaveData(CompoundTag nbt) {
@@ -115,6 +117,10 @@ public class Rascal extends PathfinderMob implements IAnimatable {
 
         this.setLookedAt(nbt.getBoolean("LookedAt"));
         this.setFading(nbt.getBoolean("Fading"));
+        if (nbt.hasUUID("seekerUUID")) {
+            this.setSeekerUUID(nbt.getUUID("seekerUUID"));
+        }
+
 
     }
 
@@ -123,37 +129,52 @@ public class Rascal extends PathfinderMob implements IAnimatable {
         lookedAtCooldown = getLookedAtCooldown();
         alphaTickOld = getOldAlphaTick();
         alphaTick = getAlphaTick();
+        seekerUUID = getSeekerUUID();
     }
 
     public boolean isLookingAtMe() {
         player = this.level.getNearestPlayer(TargetingConditions.forNonCombat().range(256), this);
         if (player != null) {
-            Vec3 vec3 = player.getViewVector(1.0F).normalize();
-            Vec3 vec31 = new Vec3(this.getX() - player.getX(), this.getEyeY() - player.getEyeY(), this.getZ() - player.getZ());
-            double d0 = vec31.length();
-            vec31 = vec31.normalize();
-            double d1 = vec3.dot(vec31);
-            return d1 > 1.0D - 0.025D / d0 && player.hasLineOfSight(this);
+            if (seekerUUID == null || seekerUUID == player.getUUID()) {
+                Vec3 vec3 = player.getViewVector(1.0F).normalize();
+                Vec3 vec31 = new Vec3(this.getX() - player.getX(), this.getEyeY() - player.getEyeY(), this.getZ() - player.getZ());
+                double d0 = vec31.length();
+                vec31 = vec31.normalize();
+                double d1 = vec3.dot(vec31);
+                return d1 > 1.0D - 0.025D / d0 && player.hasLineOfSight(this);
+            }
+            return false;
         }
         return false;
     }
 
+    /*
     public float getWalkTargetValue(BlockPos pPos, LevelReader pLevel) {
         return pLevel.getBrightness(LightLayer.BLOCK, this.blockPosition()) == 0 ? 10.0F : super.getWalkTargetValue(pPos, pLevel);
     }
+
+     */
 
 
     public void aiStep() {
         super.aiStep();
 
+        if (!level.isClientSide()) {
+
+        }
+
+
         if (getTimesLookedAt() <= 3) {
 
         }
+        /*
         SullysMod.LOGGER.info("Times looked at {}", getTimesLookedAt());
         SullysMod.LOGGER.info("Has been looked at {}", isLookedAt());
         System.out.println("Cooldown: " + getLookedAtCooldown());
         System.out.println("Old Alpha tick: " + getOldAlphaTick());
         System.out.println("Alpha tick: " + getAlphaTick());
+
+         */
 
 
 
@@ -179,17 +200,14 @@ public class Rascal extends PathfinderMob implements IAnimatable {
 
             if (this.getLookedAtCooldown() == 70) {
                 setLookedAt(false);
-
             }
 
             if (this.getLookedAtCooldown() == 0) {
 
-                if (this.isLookingAtMe() && this.getTimesLookedAt() < 3) {
+                if (this.isLookedAt() && this.getTimesLookedAt() < 3) {
                     this.entityData.set(TIMES_LOOKED_AT, this.getTimesLookedAt() + 1);
                     this.setLookedAtCooldown(80);
-                    this.setLookedAt(true);
                     this.setFading(true);
-                    this.setTarget(player);
                 }
                 setAlphaTick(80.0f);
                 setOldAlphaTick(0);
@@ -198,12 +216,6 @@ public class Rascal extends PathfinderMob implements IAnimatable {
             if (getAlphaTick() == 1.0F) {
                 this.remove(RemovalReason.DISCARDED);
             }
-
-            if (this.getLookedAtCooldown() != 0) {
-
-            }
-
-
         }
     }
 
@@ -282,6 +294,15 @@ public class Rascal extends PathfinderMob implements IAnimatable {
         this.setFlag(4, flag);
     }
 
+    @Nullable
+    public UUID getSeekerUUID() {
+        return this.seekerUUID;
+    }
+
+    public void setSeekerUUID(UUID seekerUUID) {
+        this.seekerUUID = seekerUUID;
+    }
+
     private void setFlag(int flagId, boolean flag) {
         if (flag) {
             this.entityData.set(DATA_FLAGS_ID, (byte)(this.entityData.get(DATA_FLAGS_ID) | flagId));
@@ -293,6 +314,64 @@ public class Rascal extends PathfinderMob implements IAnimatable {
 
     private boolean getFlag(int flagId) {
         return (this.entityData.get(DATA_FLAGS_ID) & flagId) != 0;
+    }
+
+    static class LookForSeekerGoal extends Goal {
+        private final Rascal mob;
+
+        public LookForSeekerGoal(Rascal mob) {
+            this.mob = mob;
+        }
+
+        @Override
+        public boolean canUse() {
+            if (mob.getTimesLookedAt() > 1) {
+                return false;
+            }
+            return mob.isLookingAtMe();
+        }
+
+        @Override
+        public boolean canContinueToUse() {
+            return false;
+        }
+
+        @Override
+        public void start() {
+            this.mob.setLookedAt(true);
+            this.mob.setSeekerUUID(this.mob.player.getUUID());
+        }
+
+        @Override
+        public void stop() {
+            this.mob.setLookedAt(false);
+            //this.mob.setSeekerUUID(this.mob.player.getUUID());
+        }
+    }
+
+    //why do you only go east?
+    static class GoToDarkPlaceGoal extends MoveToBlockGoal {
+        private final Rascal rascal;
+
+        public GoToDarkPlaceGoal(Rascal pMob, double pSpeedModifier, int pSearchRange) {
+            super(pMob, pSpeedModifier, pSearchRange, 10);
+            this.rascal = pMob;
+            this.setFlags(EnumSet.of(Goal.Flag.JUMP, Goal.Flag.MOVE));
+        }
+
+        public boolean canUse() {
+            return rascal.isLookedAt() && rascal.getTimesLookedAt() < 3;
+        }
+
+        public void stop() {
+            super.stop();
+            System.out.println("Stopped");
+        }
+
+        @Override
+        protected boolean isValidTarget(LevelReader pLevel, BlockPos pPos) {
+            return pLevel.getBrightness(LightLayer.BLOCK, pPos) <= 1;
+        }
     }
 
     /**

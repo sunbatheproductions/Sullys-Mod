@@ -19,7 +19,7 @@ public class ChameleonRenderer extends GeoEntityRenderer<Chameleon> {
     public static final ResourceLocation STANDARD = SullysMod.modPrefix("textures/entity/chameleon/chameleon.png");
     public static final ResourceLocation TINTABLE = SullysMod.modPrefix("textures/entity/chameleon/tintable.png");
     public ChameleonRenderer(EntityRendererProvider.Context renderManager) {
-        super(renderManager, new ChameleonModel());
+        super(renderManager, new ChameleonModel<>());
     }
 
     @Override

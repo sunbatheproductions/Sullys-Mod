@@ -33,7 +33,6 @@ import software.bernie.geckolib3.util.GeckoLibUtil;
 public class Chameleon extends Animal implements IAnimatable {
     public static final EntityDataAccessor<Integer> CURRENT_COLOR = SynchedEntityData.defineId(Chameleon.class, EntityDataSerializers.INT);
     public static final EntityDataAccessor<Integer> TARGET_COLOR = SynchedEntityData.defineId(Chameleon.class, EntityDataSerializers.INT);
-
     private final AnimationFactory factory = GeckoLibUtil.createFactory(this);
     public static final Ingredient FOOD_ITEMS = Ingredient.of(SMItemTags.CHAMELEON_FOOD);
 
@@ -98,6 +97,9 @@ public class Chameleon extends Animal implements IAnimatable {
     @Override
     public void tick() {
         super.tick();
+        //TODO Fix, colour not changing correctly when entity is in water and then floats over to a different block
+        //TODO Possible idea: Add a way to set custom colours for blocks and use mapcolour as fallback if no colour is set. Could be done with ReloadListeners
+        //TODO figure out what Mana meant with the improvements she made on this system and reimplement it
         BlockPos currentPos = this.blockPosition();
         BlockPos floorPos = currentPos.below();
         BlockState sharedBlock = level.getBlockState(currentPos);

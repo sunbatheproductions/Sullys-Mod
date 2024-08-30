@@ -3,7 +3,6 @@ package com.uraneptus.sullysmod.data.server.builtin;
 import com.uraneptus.sullysmod.core.other.SMFeatureDefinitions;
 import com.uraneptus.sullysmod.core.registry.SMBlocks;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.Vec3i;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.data.worldgen.BootstapContext;

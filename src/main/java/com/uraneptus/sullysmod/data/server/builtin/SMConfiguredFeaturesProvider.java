@@ -2,7 +2,6 @@ package com.uraneptus.sullysmod.data.server.builtin;
 
 import com.google.common.collect.ImmutableList;
 import com.uraneptus.sullysmod.SullysMod;
-import com.uraneptus.sullysmod.common.levelgen.ArtifactGravelFeature;
 import com.uraneptus.sullysmod.common.levelgen.PetrifiedTreeConfig;
 import com.uraneptus.sullysmod.common.levelgen.PetrifiedTreeGravelDecorator;
 import com.uraneptus.sullysmod.core.other.SMFeatureDefinitions;

@@ -18,7 +18,10 @@ import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
-import net.minecraft.world.entity.ai.goal.*;
+import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.entity.ai.goal.JumpGoal;
+import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
+import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
 import net.minecraft.world.entity.ai.goal.target.ResetUniversalAngerTargetGoal;
@@ -35,23 +38,14 @@ import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import org.jetbrains.annotations.Nullable;
-import software.bernie.geckolib.animatable.GeoEntity;
-import software.bernie.geckolib.core.animatable.GeoAnimatable;
-import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
-import software.bernie.geckolib.core.animation.AnimatableManager;
-import software.bernie.geckolib.core.animation.AnimationController;
-import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.animation.RawAnimation;
-import software.bernie.geckolib.core.object.PlayState;
-import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 
-public class Piranha extends AbstractSchoolingFish implements GeoEntity, NeutralMob {
-    private final AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
+public class Piranha extends AbstractSchoolingFish implements NeutralMob {
     protected static final RawAnimation SWIMMING_ANIM = RawAnimation.begin().thenLoop("animation.piranha.swim");
     protected static final RawAnimation SWIMMING_ANGRY_ANIM = RawAnimation.begin().thenLoop("animation.piranha.swim_angry");
     protected static final RawAnimation JUMPING_ANIM = RawAnimation.begin().thenPlay("animation.piranha.in_air");
@@ -73,13 +67,12 @@ public class Piranha extends AbstractSchoolingFish implements GeoEntity, Neutral
 
     @Override
     protected void registerGoals() {
-        //NOTE: Never call the super method! We don't want the panic goal in AbstractFish
+        super.registerGoals();
+        //NOTE: We don't want the panic goal in AbstractFish
+        this.goalSelector.removeGoal(new PanicGoal(this, 1.25D));
         this.goalSelector.addGoal(1, new PiranhaJumpOnLandGoal(this));
         this.goalSelector.addGoal(0, new PiranhaAttackGoal(this));
         this.goalSelector.addGoal(0, new PiranhaAttackBoatGoal(this));
-        this.goalSelector.addGoal(2, new AvoidEntityGoal<>(this, Player.class, 8.0F, 1.6D, 1.4D, EntitySelector.NO_SPECTATORS::test));
-        this.goalSelector.addGoal(4, new PiranhaSwimGoal(this));
-        this.goalSelector.addGoal(5, new FollowFlockLeaderGoal(this));
         this.targetSelector.addGoal(1, new HurtByTargetGoal(this));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, true, this::piranhaAngryAtPlayer));
         this.targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Mob.class, true, this::isPiranhaAngry));
@@ -144,6 +137,8 @@ public class Piranha extends AbstractSchoolingFish implements GeoEntity, Neutral
         }
 
          */
+        System.out.println(this.getRemainingPersistentAngerTime());
+        System.out.println(this.hasBoatTarget());
 
     }
 
@@ -178,16 +173,7 @@ public class Piranha extends AbstractSchoolingFish implements GeoEntity, Neutral
         return new ItemStack(SMItems.PIRANHA_BUCKET.get());
     }
 
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "Animations", 3, this::setAnimation));
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return instanceCache;
-    }
-
+    /*
     public <E extends GeoAnimatable> PlayState setAnimation(final AnimationState<E> event) {
         if ((event.isMoving() && this.getRemainingPersistentAngerTime() > 0) || this.hasBoatTarget()) {
             return event.setAndContinue(SWIMMING_ANGRY_ANIM);
@@ -196,6 +182,8 @@ public class Piranha extends AbstractSchoolingFish implements GeoEntity, Neutral
         }
         return PlayState.STOP;
     }
+
+     */
 
     public int getRemainingPersistentAngerTime() {
         return this.entityData.get(DATA_REMAINING_ANGER_TIME);
@@ -241,19 +229,6 @@ public class Piranha extends AbstractSchoolingFish implements GeoEntity, Neutral
         this.boatTarget = boatTarget;
     }
 
-    static class PiranhaSwimGoal extends RandomSwimmingGoal {
-        private final Piranha fish;
-
-        public PiranhaSwimGoal(Piranha pFish) {
-            super(pFish, 1.0D, 40);
-            this.fish = pFish;
-        }
-
-        public boolean canUse() {
-            return this.fish.canRandomSwim() && super.canUse();
-        }
-    }
-
     static class PiranhaAttackGoal extends MeleeAttackGoal {
         Piranha piranha;
 
@@ -295,7 +270,7 @@ public class Piranha extends AbstractSchoolingFish implements GeoEntity, Neutral
         public PiranhaTargetBoatGoal(Piranha pMob) {
             this.piranha = pMob;
             this.randomInterval = reducedTickDelay(10);
-            this.setFlags(EnumSet.of(Goal.Flag.TARGET));
+            this.setFlags(EnumSet.of(Flag.TARGET));
         }
 
         @Override
@@ -393,7 +368,7 @@ public class Piranha extends AbstractSchoolingFish implements GeoEntity, Neutral
         public PiranhaAttackBoatGoal(Piranha pMob) {
             this.piranha = pMob;
             this.speedModifier = 1.5F;
-            this.setFlags(EnumSet.of(Goal.Flag.MOVE, Goal.Flag.LOOK));
+            this.setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK));
         }
 
         @Override
@@ -488,6 +463,7 @@ public class Piranha extends AbstractSchoolingFish implements GeoEntity, Neutral
         }
     }
 
+    //TODO redo this shit
     static class PiranhaJumpOnLandGoal extends JumpGoal {
         Piranha piranha;
         boolean didAttack;

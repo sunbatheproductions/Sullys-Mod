@@ -17,7 +17,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 @ParametersAreNonnullByDefault
 @MethodsReturnNonnullByDefault
 public class LanternfishRenderer <E extends Lanternfish> extends MobRenderer<E, LanternfishModel<E>> {
-    public static final ResourceLocation TEXTURE = SullysMod.modPrefix("textures/entity/lanternfish/lanternfish.png");
+    private static final ResourceLocation TEXTURE = SullysMod.modPrefix("textures/entity/lanternfish/lanternfish.png");
 
     public LanternfishRenderer(EntityRendererProvider.Context context) {
         super(context, new LanternfishModel<>(context.bakeLayer(LanternfishModel.LAYER_LOCATION)), 0.3F);

@@ -46,9 +46,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 public class Piranha extends AbstractSchoolingFish implements NeutralMob {
-    protected static final RawAnimation SWIMMING_ANIM = RawAnimation.begin().thenLoop("animation.piranha.swim");
-    protected static final RawAnimation SWIMMING_ANGRY_ANIM = RawAnimation.begin().thenLoop("animation.piranha.swim_angry");
-    protected static final RawAnimation JUMPING_ANIM = RawAnimation.begin().thenPlay("animation.piranha.in_air");
     private static final EntityDataAccessor<Integer> DATA_REMAINING_ANGER_TIME = SynchedEntityData.defineId(Piranha.class, EntityDataSerializers.INT);
     private static final UniformInt PERSISTENT_ANGER_TIME = TimeUtil.rangeOfSeconds(5, 10);
     private static final EntityDataAccessor<Boolean> HAS_BOAT_TARGET = SynchedEntityData.defineId(Piranha.class, EntityDataSerializers.BOOLEAN);
@@ -56,6 +53,8 @@ public class Piranha extends AbstractSchoolingFish implements NeutralMob {
     private UUID persistentAngerTarget;
     @Nullable
     private Boat boatTarget;
+    public final AnimationState swimState = new AnimationState();
+    public final AnimationState angrySwimState = new AnimationState();
 
     public Piranha(EntityType<? extends AbstractSchoolingFish> pEntityType, Level pLevel) {
         super(pEntityType, pLevel);
@@ -127,19 +126,11 @@ public class Piranha extends AbstractSchoolingFish implements NeutralMob {
 
     public void tick() {
         super.tick();
-        /*
-        System.out.println("Regular Target: " + this.getTarget());
-        System.out.println(hasBoatTarget());
-
-        if (boatTarget != null) {
-            System.out.println(this.boatTarget.getDamage());
-            System.out.println("Boat Target: " + this.boatTarget);
+        if (level().isClientSide()) {
+            boolean angryFlag = this.getRemainingPersistentAngerTime() > 0 || this.hasBoatTarget();
+            this.swimState.animateWhen(this.isInWater() && !angryFlag, this.tickCount);
+            this.angrySwimState.animateWhen(this.isInWater() && angryFlag, this.tickCount);
         }
-
-         */
-        System.out.println(this.getRemainingPersistentAngerTime());
-        System.out.println(this.hasBoatTarget());
-
     }
 
     @Override
@@ -172,18 +163,6 @@ public class Piranha extends AbstractSchoolingFish implements NeutralMob {
     public ItemStack getBucketItemStack() {
         return new ItemStack(SMItems.PIRANHA_BUCKET.get());
     }
-
-    /*
-    public <E extends GeoAnimatable> PlayState setAnimation(final AnimationState<E> event) {
-        if ((event.isMoving() && this.getRemainingPersistentAngerTime() > 0) || this.hasBoatTarget()) {
-            return event.setAndContinue(SWIMMING_ANGRY_ANIM);
-        } else if (event.isMoving()) {
-            return event.setAndContinue(SWIMMING_ANIM);
-        }
-        return PlayState.STOP;
-    }
-
-     */
 
     public int getRemainingPersistentAngerTime() {
         return this.entityData.get(DATA_REMAINING_ANGER_TIME);

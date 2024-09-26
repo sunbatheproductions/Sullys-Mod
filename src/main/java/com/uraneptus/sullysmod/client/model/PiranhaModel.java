@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.uraneptus.sullysmod.SullysMod;
 import com.uraneptus.sullysmod.client.animations.AnimUtil;
+import com.uraneptus.sullysmod.client.animations.BoulderingZombieAnimation;
 import com.uraneptus.sullysmod.client.animations.PiranhaAnimation;
 import com.uraneptus.sullysmod.common.entities.Piranha;
 import net.minecraft.client.model.EntityModel;
@@ -50,18 +51,14 @@ public class PiranhaModel<E extends Piranha> extends EntityModel<E> implements R
 
     @Override
     public void setupAnim(E pEntity, float pLimbSwing, float pLimbSwingAmount, float pAgeInTicks, float pNetHeadYaw, float pHeadPitch) {
+        this.root().getAllParts().forEach(ModelPart::resetPose);
         float f = 1.0F;
         if (!pEntity.isInWater()) {
             f = 1.5F;
         }
 
-        if (pEntity.isInWater()) {
-            if (pEntity.getRemainingPersistentAngerTime() > 0 || pEntity.hasBoatTarget()) {
-                AnimUtil.animateWalk(this, PiranhaAnimation.SWIM_ANGRY, pLimbSwing, pLimbSwingAmount, 1.0F, 0.0F);
-            } else {
-                AnimUtil.animateWalk(this, PiranhaAnimation.SWIM, pLimbSwing, pLimbSwingAmount, 1.0F, 0.0F);
-            }
-        }
+        AnimUtil.animate(this, pEntity.swimState, PiranhaAnimation.SWIM, pAgeInTicks);
+        AnimUtil.animate(this, pEntity.angrySwimState, PiranhaAnimation.SWIM_ANGRY, pAgeInTicks);
 
         this.tail_fin.yRot = -f * 0.45F * Mth.sin(0.6F * pAgeInTicks);
     }

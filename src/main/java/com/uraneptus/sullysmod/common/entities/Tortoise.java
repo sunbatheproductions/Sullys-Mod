@@ -58,7 +58,7 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
 
-public class Tortoise extends Animal implements GeoEntity, WorkstationAttachable {
+public class Tortoise extends Animal implements WorkstationAttachable {
     public static final EntityDataAccessor<Integer> HIDE_TIMER = SynchedEntityData.defineId(Tortoise.class, EntityDataSerializers.INT);
     private static final EntityDataAccessor<Boolean> HAS_EGG = SynchedEntityData.defineId(Tortoise.class, EntityDataSerializers.BOOLEAN);
     private static final EntityDataAccessor<Boolean> LAYING_EGG = SynchedEntityData.defineId(Tortoise.class, EntityDataSerializers.BOOLEAN);
@@ -68,7 +68,6 @@ public class Tortoise extends Animal implements GeoEntity, WorkstationAttachable
     protected static final RawAnimation WALKING_ANIM = RawAnimation.begin().thenLoop("animation.tortoise.walking");
     protected static final RawAnimation HIDING_ANIM = RawAnimation.begin().thenPlayAndHold("animation.tortoise.hide").thenLoop("animation.tortoise.hiding");
     protected static final RawAnimation REVEAL_ANIM = RawAnimation.begin().thenPlayAndHold("animation.tortoise.reveal");
-    private final AnimatableInstanceCache instanceCache = GeckoLibUtil.createInstanceCache(this);
     int layEggCounter;
     FollowJukeboxEntitySoundInstance soundInstance;
     long recordTickCount;
@@ -272,16 +271,7 @@ public class Tortoise extends Animal implements GeoEntity, WorkstationAttachable
         return null;
     }
 
-    @Override
-    public void registerControllers(AnimatableManager.ControllerRegistrar controllerRegistrar) {
-        controllerRegistrar.add(new AnimationController<>(this, "Animations", 3, this::setAnimation));
-    }
-
-    @Override
-    public AnimatableInstanceCache getAnimatableInstanceCache() {
-        return instanceCache;
-    }
-
+    /*
     public <E extends GeoAnimatable> PlayState setAnimation(final AnimationState<E> event) {
         if (event.isMoving() && getHideTimerDuration() == 0 && onGround()) {
             return event.setAndContinue(WALKING_ANIM);
@@ -292,6 +282,8 @@ public class Tortoise extends Animal implements GeoEntity, WorkstationAttachable
         }
         return PlayState.STOP;
     }
+
+     */
 
     @Override
     public boolean hurt(@NotNull DamageSource source, float amount) {

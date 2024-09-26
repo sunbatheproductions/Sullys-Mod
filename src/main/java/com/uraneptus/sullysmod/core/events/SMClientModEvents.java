@@ -61,6 +61,7 @@ public class SMClientModEvents {
         event.registerLayerDefinition(LanternfishModel.LAYER_LOCATION, LanternfishModel::createBodyLayer);
         event.registerLayerDefinition(JadeShieldModel.LAYER_LOCATION, JadeShieldModel::createLayer);
         event.registerLayerDefinition(TortoiseShellModel.LAYER_LOCATION, TortoiseShellModel::createBodyLayer);
+        event.registerLayerDefinition(TortoiseModel.LAYER_LOCATION, TortoiseModel::createBodyLayer);
         event.registerLayerDefinition(JungleSpiderModel.LAYER_LOCATION, JungleSpiderModel::createBodyLayer);
         event.registerLayerDefinition(BoulderingZombieModel.LAYER_LOCATION, BoulderingZombieModel::createBodyLayer);
         event.registerLayerDefinition(PiranhaModel.LAYER_LOCATION, PiranhaModel::createBodyLayer);
